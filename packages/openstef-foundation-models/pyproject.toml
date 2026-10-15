@@ -56,6 +56,10 @@ optional-dependencies.gpu = [
   "nvidia-curand-cu12>=10,<11",
   "onnxruntime-gpu>=1.21",
 ]
+optional-dependencies.kserve = [
+  "httpx>=0.27",
+]
+
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"

@@ -24,7 +24,7 @@ to run a file already on disk.
 from pathlib import Path
 from typing import Literal, assert_never
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
@@ -105,7 +105,15 @@ class KServeBackendConfig(BaseConfig):
 
     kind: Literal["kserve"] = Field(default="kserve", description="Discriminator tag for backend type.")
     metadata_path: Path = Field(description="Local path to the checkpoint's .metadata.json file (no weights needed).")
-    model_url: str = Field(description="URL of the KServe inference service.")
+    model_url: str = Field(
+        description="Full inference URL of the model, including scheme, used as-is "
+        "(e.g. 'https://host/v2/models/chronos2/infer').",
+    )
+    bearer_token: SecretStr | None = Field(
+        default=None,
+        description="Optional token sent as 'Authorization: Bearer <token>'. Supplied by the caller; never fetched "
+        "here. For tokens that expire, construct KServeBackend directly with a callable instead.",
+    )
 
     def build(self, checkpoint: CheckpointRef) -> InferenceBackend:  # noqa: ARG002
         """Build a KServeBackend from this config.
@@ -121,7 +129,12 @@ class KServeBackendConfig(BaseConfig):
         """
         from openstef_foundation_models.inference.kserve_backend import KServeBackend  # noqa: PLC0415
 
-        return KServeBackend.from_metadata_path(metadata_path=self.metadata_path, model_url=self.model_url)
+        bearer_token = self.bearer_token.get_secret_value() if self.bearer_token else None
+        return KServeBackend.from_metadata_path(
+            metadata_path=self.metadata_path,
+            model_url=self.model_url,
+            bearer_token=bearer_token,
+        )
 
 
 #: A backend configuration. Supports both local ONNX Runtime (``OnnxBackendConfig``)

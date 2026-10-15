@@ -4494,9 +4494,13 @@ gpu = [
     { name = "nvidia-curand-cu12" },
     { name = "onnxruntime-gpu" },
 ]
+kserve = [
+    { name = "httpx" },
+]
 
 [package.metadata]
 requires-dist = [
+    { name = "httpx", marker = "extra == 'kserve'", specifier = ">=0.27" },
     { name = "huggingface-hub", specifier = ">=1.2.2" },
     { name = "nvidia-cublas-cu12", marker = "extra == 'gpu'", specifier = ">=12,<13" },
     { name = "nvidia-cuda-runtime-cu12", marker = "extra == 'gpu'", specifier = ">=12,<13" },
@@ -4509,7 +4513,7 @@ requires-dist = [
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-models", editable = "packages/openstef-models" },
 ]
-provides-extras = ["cpu", "gpu"]
+provides-extras = ["cpu", "gpu", "kserve"]
 
 [[package]]
 name = "openstef-meta"
@@ -4570,9 +4574,9 @@ requires-dist = [
     { name = "pycountry", specifier = ">=24.6.1" },
     { name = "scikit-learn", specifier = ">=1.7.1,<2" },
     { name = "scipy", specifier = ">=1.16.3,<2" },
-    { name = "xgboost", marker = "sys_platform == 'darwin' and extra == 'xgb-cpu'", specifier = ">=3.2.0,<4" },
-    { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3.2.0,<4" },
-    { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3.2.0,<4" },
+    { name = "xgboost", marker = "sys_platform == 'darwin' and extra == 'xgb-cpu'", specifier = ">=3.2,<4" },
+    { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3.2,<4" },
+    { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3.2,<4" },
 ]
 provides-extras = ["lgbm", "tuning", "xgb-cpu", "xgb-gpu"]
 
