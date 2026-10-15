@@ -21,6 +21,7 @@ or pass a :class:`~openstef_foundation_models.models.checkpoint.LocalCheckpoint`
 to run a file already on disk.
 """
 
+from pathlib import Path
 from typing import Literal, assert_never
 
 from pydantic import Field
@@ -96,10 +97,37 @@ class OnnxBackendConfig(BaseConfig):
         )
 
 
-#: A backend configuration. Currently ONNX-only; kept as a named type so the
-#: workflow config and factory can grow to a discriminated union of backends
-#: without changing their public signatures.
-BackendConfig = OnnxBackendConfig
+class KServeBackendConfig(BaseConfig):
+    """Configuration for a KServe inference backend.
+
+    Holds KServe-specific connection details instead of local ONNX Runtime settings.
+    """
+
+    kind: Literal["kserve"] = Field(default="kserve", description="Discriminator tag for backend type.")
+    metadata_path: Path = Field(description="Local path to the checkpoint's .metadata.json file (no weights needed).")
+    model_url: str = Field(description="URL of the KServe inference service.")
+
+    def build(self, checkpoint: CheckpointRef) -> InferenceBackend:  # noqa: ARG002
+        """Build a KServeBackend from this config.
+
+        Note: The checkpoint argument is ignored; KServeBackendConfig only uses
+        the local metadata_path to load checkpoint metadata.
+
+        Args:
+            checkpoint: Unused; required by the BackendConfig interface.
+
+        Returns:
+            A ready-to-use KServeBackend.
+        """
+        from openstef_foundation_models.inference.kserve_backend import KServeBackend  # noqa: PLC0415
+
+        return KServeBackend.from_metadata_path(metadata_path=self.metadata_path, model_url=self.model_url)
+
+
+#: A backend configuration. Supports both local ONNX Runtime (``OnnxBackendConfig``)
+#: and remote KServe (``KServeBackendConfig``) backends. Kept as a named type so new
+#: backends can be added without changing the workflow config's public signature.
+BackendConfig = OnnxBackendConfig | KServeBackendConfig
 
 
 class ForecastingWorkflowConfig(BaseConfig):
@@ -202,6 +230,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
 __all__ = [
     "BackendConfig",
     "ForecastingWorkflowConfig",
+    "KServeBackendConfig",
     "OnnxBackendConfig",
     "create_forecasting_workflow",
 ]

@@ -11,6 +11,7 @@ when a backend config is built, not when these presets are imported.
 from openstef_foundation_models.presets.forecasting_workflow import (
     BackendConfig,
     ForecastingWorkflowConfig,
+    KServeBackendConfig,
     OnnxBackendConfig,
     create_forecasting_workflow,
 )
@@ -18,6 +19,7 @@ from openstef_foundation_models.presets.forecasting_workflow import (
 __all__ = [
     "BackendConfig",
     "ForecastingWorkflowConfig",
+    "KServeBackendConfig",
     "OnnxBackendConfig",
     "create_forecasting_workflow",
 ]
